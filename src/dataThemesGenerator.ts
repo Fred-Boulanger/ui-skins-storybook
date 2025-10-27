@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { glob } from 'glob'
 import { parse } from 'yaml'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 
 export interface ThemeConfig {
   key: string
@@ -10,15 +10,39 @@ export interface ThemeConfig {
   target: string
 }
 
+export interface ThemeGeneratorOptions {
+  namespaces?: Record<string, string>
+}
+
 /**
  * Generate Storybook data-themes.ts configuration from *.ui_skins.themes.yml files
  */
-export async function generateThemes(): Promise<void> {
+export async function generateThemes(options: ThemeGeneratorOptions = {}): Promise<void> {
   console.log('🎨 Generating theme configuration from *.ui_skins.themes.yml files...')
   
   try {
-    // Find all theme files
-    const themeFiles = await glob('**/*.ui_skins.themes.yml', { cwd: process.cwd() })
+    // Find all theme files in current directory and namespaces
+    const searchPaths = [process.cwd()]
+    
+    // Add namespace paths if provided
+    if (options.namespaces) {
+      for (const [namespaceName, namespacePath] of Object.entries(options.namespaces)) {
+        const resolvedPath = resolve(namespacePath)
+        searchPaths.push(resolvedPath)
+        console.log(`🔍 Searching themes in namespace '${namespaceName}': ${resolvedPath}`)
+      }
+    }
+    
+    // Search for theme files in all paths
+    const themeFiles: string[] = []
+    for (const searchPath of searchPaths) {
+      try {
+        const files = await glob('**/*.ui_skins.themes.yml', { cwd: searchPath })
+        themeFiles.push(...files.map(file => join(searchPath, file)))
+      } catch (error) {
+        console.log(`⚠️  Could not search in path: ${searchPath}`)
+      }
+    }
     
     if (themeFiles.length === 0) {
       console.log('⚠️  No *.ui_skins.themes.yml files found - skipping theme generation')

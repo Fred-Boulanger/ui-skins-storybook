@@ -1,8 +1,8 @@
 import type { Plugin } from 'vite'
-import { generateThemes } from './dataThemesGenerator.js'
+import { generateThemes, ThemeGeneratorOptions } from './dataThemesGenerator.js'
 import { logger } from './logger.js'
 
-export interface ThemeGeneratorOptions {
+export interface ViteThemeGeneratorOptions {
   /**
    * Whether to generate themes on build start
    * @default true
@@ -14,15 +14,21 @@ export interface ThemeGeneratorOptions {
    * @default true
    */
   watch?: boolean
+  
+  /**
+   * Namespaces to search for theme files
+   */
+  namespaces?: Record<string, string>
 }
 
 /**
  * Vite plugin for automatic theme generation from *.ui_skins.themes.yml files
  */
-export default function vitePluginThemeGenerator(options: ThemeGeneratorOptions = {}): Plugin {
+export default function vitePluginThemeGenerator(options: ViteThemeGeneratorOptions = {}): Plugin {
   const {
     generateOnStart = true,
-    watch = true
+    watch = true,
+    namespaces
   } = options
 
   let hasGenerated = false
@@ -33,7 +39,7 @@ export default function vitePluginThemeGenerator(options: ThemeGeneratorOptions 
     async buildStart() {
       if (generateOnStart && !hasGenerated) {
         try {
-          await generateThemes()
+          await generateThemes({ namespaces })
           hasGenerated = true
         } catch (error) {
           logger.warn('Failed to generate themes on build start:', error)
@@ -45,7 +51,7 @@ export default function vitePluginThemeGenerator(options: ThemeGeneratorOptions 
       // Generate themes when loading any component.yml file
       if (id.endsWith('component.yml') && !hasGenerated) {
         try {
-          await generateThemes()
+          await generateThemes({ namespaces })
           hasGenerated = true
         } catch (error) {
           logger.warn('Failed to generate themes:', error)
@@ -57,7 +63,7 @@ export default function vitePluginThemeGenerator(options: ThemeGeneratorOptions 
       // Regenerate themes when theme files change
       if (watch && file.endsWith('.ui_skins.themes.yml')) {
         try {
-          await generateThemes()
+          await generateThemes({ namespaces })
           logger.info('🎨 Themes regenerated due to file change:', file)
         } catch (error) {
           logger.warn('Failed to regenerate themes:', error)

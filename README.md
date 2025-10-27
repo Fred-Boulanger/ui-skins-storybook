@@ -49,6 +49,33 @@ export default {
 }
 ```
 
+### Using with Namespaces
+
+If you're using namespaces in your Storybook configuration, you can pass them to the plugin to search for theme files in those directories:
+
+```typescript
+// .storybook/main.ts
+import { vitePluginThemeGenerator } from '@fredboulanger/ui-skins-storybook/main'
+import { resolve } from 'path'
+
+export default {
+  // ... other config
+  viteFinal: (config) => ({
+    ...config,
+    plugins: [...(config.plugins || []), vitePluginThemeGenerator({
+      namespaces: {
+        'malakoff_humanis': resolve('../../../themes/custom/malakoff_humanis'),
+        'ui_suite_cbd': resolve('../../../themes/custom/ui_suite_cbd'),
+      }
+    })],
+  }),
+}
+```
+
+The plugin will automatically search for `*.ui_skins.themes.yml` files in:
+- The current working directory
+- All namespace directories you specify
+
 ## Theme File Format
 
 Create `*.ui_skins.themes.yml` files in your project. Each theme **must** have the following required properties:
