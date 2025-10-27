@@ -24,7 +24,27 @@ Add the plugin to your Storybook configuration:
 ```typescript
 // .storybook/main.ts
 import { viteFinal } from '@storybook/html-vite'
-import { vitePluginThemeGenerator } from '@fredboulanger/ui-skins-storybook'
+import { vitePluginThemeGenerator } from '@fredboulanger/ui-skins-storybook/main'
+
+export default {
+  // ... other config
+  viteFinal: async (config) => {
+    return viteFinal(config, {
+      plugins: [
+        vitePluginThemeGenerator(),
+        // ... other plugins
+      ]
+    })
+  }
+}
+```
+
+Or for JavaScript configuration:
+
+```javascript
+// .storybook/main.js
+import { viteFinal } from '@storybook/html-vite'
+import { vitePluginThemeGenerator } from '@fredboulanger/ui-skins-storybook/main'
 
 export default {
   // ... other config
