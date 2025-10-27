@@ -39,15 +39,6 @@ export default {
 }
 ```
 
-### Manual Generation
-
-```typescript
-import { generateThemes } from '@fredboulanger/ui-skins-storybook'
-
-// Generate themes from *.ui_skins.themes.yml files
-await generateThemes()
-```
-
 ## Theme File Format
 
 Create `*.ui_skins.themes.yml` files in your project:
@@ -80,6 +71,96 @@ The plugin generates a `.storybook/data-themes.ts` file with:
 - Theme decorators for applying data-theme attributes
 - Global types for Storybook toolbar
 - Theme target mapping
+
+## Integration with Storybook Preview
+
+To use the generated themes in your Storybook, you need to integrate the `data-themes.ts` file into your `.storybook/preview.ts` configuration:
+
+### 1. Import the Generated Theme Configuration
+
+```typescript
+// .storybook/preview.ts
+import type { Preview } from '@storybook/html'
+import { themeDecorators, themeGlobalTypes } from './data-themes'
+
+export const decorators = [
+  ...themeDecorators, // Theme decorators
+  // Your other decorators
+]
+
+export const globalTypes = {
+  ...themeGlobalTypes, // Theme global types
+  // Your other global types
+}
+
+const preview: Preview = {
+  parameters: {
+    controls: {
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/,
+      },
+    },
+  },
+}
+
+export default preview
+```
+
+### 2. What the Integration Provides
+
+- **Theme Toolbar**: A paintbrush icon in the Storybook toolbar to switch between themes
+- **Automatic Theme Application**: Themes are automatically applied to the correct target element (html, body, or custom selector)
+- **Theme Cleanup**: Previous themes are properly removed before applying new ones
+- **Global Theme State**: Theme selection persists across story navigation
+
+### 3. Generated File Structure
+
+The `data-themes.ts` file exports:
+
+- `themeDecorators`: Array of decorators that apply theme attributes
+- `themeGlobalTypes`: Global types configuration for the Storybook toolbar
+
+### 4. Target Elements
+
+Themes can be applied to different target elements:
+
+- `body`: Applied to the `<body>` element
+- `html`: Applied to the `<html>` element  
+- Custom selector: Any valid CSS selector (e.g., `.theme-container`, `#app`)
+
+### 5. Complete Example
+
+Here's a complete example of a `.storybook/preview.ts` file:
+
+```typescript
+import type { Preview } from '@storybook/html'
+import { themeDecorators, themeGlobalTypes } from './data-themes'
+
+export const decorators = [
+  ...themeDecorators,
+  // Add other decorators as needed
+]
+
+export const globalTypes = {
+  ...themeGlobalTypes,
+  // Add other global types as needed
+}
+
+const preview: Preview = {
+  parameters: {
+    controls: {
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/,
+      },
+    },
+    // Add other parameters as needed
+  },
+}
+
+export default preview
+```
 
 ## License
 
