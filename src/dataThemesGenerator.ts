@@ -21,7 +21,7 @@ export async function generateThemes(): Promise<void> {
     const themeFiles = await glob('**/*.ui_skins.themes.yml', { cwd: process.cwd() })
     
     if (themeFiles.length === 0) {
-      console.log('⚠️  No *.ui_skins.themes.yml files found')
+      console.log('⚠️  No *.ui_skins.themes.yml files found - skipping theme generation')
       return
     }
     
@@ -38,12 +38,20 @@ export async function generateThemes(): Promise<void> {
         // Extract theme information
         for (const [themeKey, themeConfig] of Object.entries(themeData)) {
           if (typeof themeConfig === 'object' && themeConfig !== null) {
-            themes.push({
-              key: themeKey,
-              label: (themeConfig as any).label || themeKey,
-              value: themeKey,
-              target: (themeConfig as any).target || 'body'
-            })
+            const config = themeConfig as any
+            
+            // Check if theme has required properties: label, key, and target
+            if (config.label && config.key && config.target) {
+              themes.push({
+                key: themeKey,
+                label: config.label,
+                value: themeKey,
+                target: config.target
+              })
+              console.log(`✅ Added theme: ${themeKey} (${config.label}) -> ${config.target}`)
+            } else {
+              console.log(`⚠️  Skipped theme: ${themeKey} - missing required properties (label, key, target)`)
+            }
           }
         }
         
@@ -54,7 +62,15 @@ export async function generateThemes(): Promise<void> {
     }
     
     if (themes.length === 0) {
-      console.log('⚠️  No themes found in the files')
+      console.log('⚠️  No valid themes found in the files - skipping theme generation')
+      // Remove existing data-themes.ts file if it exists
+      const themesConfigPath = join(process.cwd(), '.storybook', 'data-themes.ts')
+      try {
+        await writeFile(themesConfigPath, '', 'utf8')
+        console.log(`🗑️  Cleared existing data-themes.ts file`)
+      } catch (error) {
+        // File might not exist, which is fine
+      }
       return
     }
     

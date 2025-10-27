@@ -23,19 +23,14 @@ Add the plugin to your Storybook configuration:
 
 ```typescript
 // .storybook/main.ts
-import { viteFinal } from '@storybook/html-vite'
 import { vitePluginThemeGenerator } from '@fredboulanger/ui-skins-storybook/main'
 
 export default {
   // ... other config
-  viteFinal: async (config) => {
-    return viteFinal(config, {
-      plugins: [
-        vitePluginThemeGenerator(),
-        // ... other plugins
-      ]
-    })
-  }
+  viteFinal: (config) => ({
+    ...config,
+    plugins: [...(config.plugins || []), vitePluginThemeGenerator()],
+  }),
 }
 ```
 
@@ -43,46 +38,44 @@ Or for JavaScript configuration:
 
 ```javascript
 // .storybook/main.js
-import { viteFinal } from '@storybook/html-vite'
 import { vitePluginThemeGenerator } from '@fredboulanger/ui-skins-storybook/main'
 
 export default {
   // ... other config
-  viteFinal: async (config) => {
-    return viteFinal(config, {
-      plugins: [
-        vitePluginThemeGenerator(),
-        // ... other plugins
-      ]
-    })
-  }
+  viteFinal: (config) => ({
+    ...config,
+    plugins: [...(config.plugins || []), vitePluginThemeGenerator()],
+  }),
 }
 ```
 
 ## Theme File Format
 
-Create `*.ui_skins.themes.yml` files in your project:
+Create `*.ui_skins.themes.yml` files in your project. Each theme **must** have the following required properties:
+
+- `label`: Display name for the theme in Storybook toolbar
+- `key`: The data-theme attribute value (usually matches the theme name)
+- `target`: CSS selector where the data-theme attribute will be applied
 
 ```yaml
 # Example: themes.ui_skins.themes.yml
 cyberpunk:
   label: "Cyberpunk"
-  label_context: "color"
   key: "data-theme"
   target: body
 
 forest:
   label: "Forest"
-  label_context: "color"
   key: "data-theme"
   target: html
 
 garden:
   label: "Garden"
-  label_context: "color"
   key: "data-theme"
   target: html
 ```
+
+**Note**: Themes without all three required properties (`label`, `key`, `target`) will be skipped during generation.
 
 ## Generated Output
 
