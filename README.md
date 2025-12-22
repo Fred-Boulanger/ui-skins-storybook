@@ -64,8 +64,8 @@ export default {
     ...config,
     plugins: [...(config.plugins || []), vitePluginThemeGenerator({
       namespaces: {
-        'malakoff_humanis': resolve('../../../themes/custom/malakoff_humanis'),
-        'ui_suite_cbd': resolve('../../../themes/custom/ui_suite_cbd'),
+        'theme_1': resolve('../../../themes/custom/theme_1'),
+        'theme_2': resolve('../../../themes/custom/theme_2'),
       }
     })],
   }),
