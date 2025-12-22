@@ -1,6 +1,6 @@
 {
   "name": "@fredboulanger/ui-skins-storybook",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Generate Storybook ui-skins configuration from *.ui_skins.themes.yml files",
   "main": "dist/index.mjs",
   "module": "dist/index.mjs",
